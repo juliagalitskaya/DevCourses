@@ -2,50 +2,49 @@
 
 Tasks on Apex Trigger
 1. Create an Apex trigger for Work Log to set the default Date as TODAY in case it is blank.
+.
 
-trigger DateTrigger1 on WorkLog__c (before insert) {
-
+    trigger DateTrigger1 on WorkLog__c (before insert) {
     for(WorkLog__c w : trigger.new)
     {
         if(w.Date__c == null){
             w.Date__c=system.today();
         }
-    }     
-}
+    }
+    }
+    
 
 2. Create an Apex trigger for Project which will send an email to Contact when Project
-status is changed from “New” to “In Progress”.
+status is changed from “New” to “In Progress”.   
+.
 
-trigger EmailTrigger on Project__c (before update) {
+    trigger EmailTrigger on Project__c (before update) {
     String newStatus = 'In Progress';
     for(Project__c p : trigger.new)
     {
         if(p.Status__c == newStatus){
-            // Prepare a list of emails to send
             List<Messaging.SingleEmailMessage> emailList = new
                 List<Messaging.SingleEmailMessage>();
-            
-            // Collect list of emails
             Messaging.SingleEmailMessage mail = new
                 Messaging.SingleEmailMessage();
-            // List of emails or record Ids (User, Lead, Contact)
             String[] toAddresses = new String[] {'galitskaya.juliia@gmail.com'};
                 mail.setToAddresses(toAddresses);
             mail.setSubject('Email Trigger Task');
             mail.setPlainTextBody('Status of '+ p.Name + ' is changed to '+ '"' + newStatus + '".');
             emailList.add(mail);
-            // Send emails
             Messaging.SendEmailResult[] results =
                 Messaging.sendEmail(emailList);
         }
     }
-}
+    }
+
 
 3. Create an Apex trigger for the Project that does not allow to change Status of the Project
 to “Closed” and does not allow to delete it in case if not all related Issues are “Done” or
 “Cancelled”.
+.
 
-trigger ErrorTrigger on Project__c (before delete, before update) {
+    trigger ErrorTrigger on Project__c (before delete, before update) {
     for(Project__c p : trigger.new){
         for(Issue__c i :[SELECT Id, Status__c
                          FROM Issue__c]){
@@ -62,4 +61,4 @@ trigger ErrorTrigger on Project__c (before delete, before update) {
                              }
                          }
     }
-}
+    }
